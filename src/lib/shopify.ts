@@ -67,3 +67,26 @@ export async function getOrders30Days(): Promise<Order[]> {
   }
   return orders;
 }
+
+export async function getLowStock(cursor: string | null) {
+  const data: {
+    products: {
+      edges: { node: { id: string; title: string; totalInventory: number } }[];
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
+  } = await shopifyFetch(
+    `query ($cursor: String) {
+      products(first: 20, after: $cursor, query: "inventory_total:<5") {
+        edges { node { id title totalInventory } }
+        pageInfo { hasNextPage endCursor }
+      }
+    }`,
+    { cursor },
+  );
+  return {
+    items: data.products.edges.map((e) => e.node),
+    nextCursor: data.products.pageInfo.hasNextPage
+      ? data.products.pageInfo.endCursor
+      : null,
+  };
+}

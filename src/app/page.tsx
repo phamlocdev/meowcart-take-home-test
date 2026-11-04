@@ -1,8 +1,15 @@
-import { getProductCounts, getOrders30Days } from "@/lib/shopify";
+import {
+  getProductCounts,
+  getOrders30Days,
+  getLowStock,
+} from "@/lib/shopify";
 
 export default async function Home() {
-  const counts = await getProductCounts();
-  const orders = await getOrders30Days();
+  const [counts, orders, lowStock] = await Promise.all([
+    getProductCounts(),
+    getOrders30Days(),
+    getLowStock(null),
+  ]);
   const orderCount = orders.length;
   // Revenue = tổng currentTotalPriceSet.shopMoney của mọi đơn trong 30 ngày.
   const revenue = orders.reduce(
@@ -40,6 +47,23 @@ export default async function Home() {
           <span className="card-value">{revenueText}</span>
         </div>
       </section>
+      <h2>Low stock products (inventory &lt; 5)</h2>
+      <table className="low-stock">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Inventory</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lowStock.items.map((p) => (
+            <tr key={p.id}>
+              <td>{p.title}</td>
+              <td>{p.totalInventory}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }
