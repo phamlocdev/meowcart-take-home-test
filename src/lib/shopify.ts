@@ -39,7 +39,7 @@ export async function getProductCounts() {
   };
 }
 
-type Order = {
+export type Order = {
   createdAt: string;
   currentTotalPriceSet: { shopMoney: { amount: string; currencyCode: string } };
 };
