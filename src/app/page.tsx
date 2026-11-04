@@ -3,6 +3,7 @@ import {
   getOrders30Days,
   getLowStock,
 } from "@/lib/shopify";
+import LowStockTable from "./LowStockTable";
 
 export default async function Home() {
   const [counts, orders, lowStock] = await Promise.all([
@@ -48,22 +49,7 @@ export default async function Home() {
         </div>
       </section>
       <h2>Low stock products (inventory &lt; 5)</h2>
-      <table className="low-stock">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Inventory</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lowStock.items.map((p) => (
-            <tr key={p.id}>
-              <td>{p.title}</td>
-              <td>{p.totalInventory}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <LowStockTable initial={lowStock} />
     </main>
   );
 }

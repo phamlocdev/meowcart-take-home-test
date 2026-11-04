@@ -13,7 +13,10 @@ async function shopifyFetch<T>(
     body: JSON.stringify({ query, variables }),
     cache: "no-store", // luôn fetch dữ liệu mới nhất
   });
-  if (!res.ok) throw new Error(`Shopify HTTP ${res.status}`);
+  if (!res.ok) {
+    console.log(await res.text());
+    throw new Error(`Shopify HTTP Error ${res.status}`);
+  }
   const body = await res.json();
   if (body.errors) throw new Error(JSON.stringify(body.errors));
   return body.data as T;
@@ -76,7 +79,7 @@ export async function getLowStock(cursor: string | null) {
     };
   } = await shopifyFetch(
     `query ($cursor: String) {
-      products(first: 20, after: $cursor, query: "inventory_total:<5") {
+      products(first: 1, after: $cursor, query: "inventory_total:<5") {
         edges { node { id title totalInventory } }
         pageInfo { hasNextPage endCursor }
       }
