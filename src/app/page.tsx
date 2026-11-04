@@ -1,7 +1,24 @@
-import { getShopName } from "@/lib/shopify";
+import { getProductCounts } from "@/lib/shopify";
 
-// Server Component: chỉ chạy ở server-side, không chạy ở client-side (browser)
 export default async function Home() {
-  const name = await getShopName();
-  return <main>{name}</main>;
+  const counts = await getProductCounts();
+  return (
+    <main>
+      <h1>Meowcart Store Snapshot</h1>
+      <section className="cards">
+        <div className="card">
+          <span className="card-label">Tổng sản phẩm</span>
+          <span className="card-value">{counts.total}</span>
+        </div>
+        <div className="card">
+          <span className="card-label">Active</span>
+          <span className="card-value">{counts.active}</span>
+        </div>
+        <div className="card">
+          <span className="card-label">Draft</span>
+          <span className="card-value">{counts.draft}</span>
+        </div>
+      </section>
+    </main>
+  );
 }

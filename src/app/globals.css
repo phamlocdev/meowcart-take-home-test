@@ -8,3 +8,34 @@ body {
   font-family: system-ui, sans-serif;
   padding: 24px;
 }
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.card-label {
+  font-size: 13px;
+  color: #666;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 600;
+}

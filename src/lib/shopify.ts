@@ -16,10 +16,19 @@ async function shopifyFetch<T>(query: string): Promise<T> {
   return body.data as T;
 }
 
-// 1. Test thử hàm getShopName()
-export async function getShopName(): Promise<string> {
-  const data = await shopifyFetch<{ shop: { name: string } }>(
-    `{ shop { name } }`,
-  );
-  return data.shop.name;
+export async function getProductCounts() {
+  const data = await shopifyFetch<{
+    total: { count: number };
+    active: { count: number };
+    draft: { count: number };
+  }>(`{
+    total: productsCount { count }
+    active: productsCount(query: "status:active") { count }
+    draft: productsCount(query: "status:draft") { count }
+  }`); // sử dụng alias để giảm số lần fetch dữ liệu từ NextJS Server sang Shopify Server
+  return {
+    total: data.total.count,
+    active: data.active.count,
+    draft: data.draft.count,
+  };
 }
