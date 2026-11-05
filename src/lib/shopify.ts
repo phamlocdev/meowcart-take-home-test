@@ -57,7 +57,7 @@ export async function getOrders30Days(): Promise<Order[]> {
       };
     } = await shopifyFetch(
       `query ($cursor: String, $q: String) {
-        orders(first: 250, after: $cursor, query: $q) {
+        orders(first: 100, after: $cursor, query: $q) {
           edges { node { createdAt netPaymentSet { shopMoney { amount currencyCode } } } }
           pageInfo { hasNextPage endCursor }
         }
