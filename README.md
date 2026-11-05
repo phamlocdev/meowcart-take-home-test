@@ -1,6 +1,8 @@
 # Meowcart Store Snapshot — Take-Home Test - Loc Pham
 
-- Demo: https://meowcart-take-home-test.vercel.app/
+- Demo website: https://meowcart-take-home-test.vercel.app/
+
+- Video demo: https://www.youtube.com/watch?v=OxA0nnkdC1k
 
 ![Dashboard overview](assets/images/dashboard-overview.png)
 
