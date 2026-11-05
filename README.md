@@ -103,7 +103,7 @@ Ngược lại, nếu khách đã được refund toàn bộ số tiền đã th
 
 Vì vậy, nếu muốn loại bỏ đơn hàng cancel hoặc test khỏi kết quả thì cần dựa vào các field cancelledAt, test để lọc ra đơn hàng hợp lệ thay vì chỉ dựa vào `netPaymentSet`.
 
-**Vì sao em chọn netPaymentSet?**
+**Lý do em chọn netPaymentSet?**
 
 Sau khi so sánh, em quyết định sử dụng `netPaymentSet` vì những lý do sau:
 
@@ -111,15 +111,15 @@ Sau khi so sánh, em quyết định sử dụng `netPaymentSet` vì những lý
 - Không muốn doanh thu bị tính cao hơn thực tế khi khách hàng đã được hoàn tiền.
 - Những đơn hàng chưa được thanh toán thực tế sẽ không làm tăng giá trị field này.
 
-### 5. Low-stock có bao gồm sản phẩm không theo dõi inventory
+### 5. Low-stock có bao gồm sản phẩm không bật theo dõi inventory
 
 Ở phần low-stock, em sử dụng điều kiện `inventory_total:<5` để lấy các sản phẩm có tổng inventory nhỏ hơn 5, đúng với yêu cầu của đề bài.
 
-Một điểm em nhận thấy trong quá trình test là kết quả không chỉ bao gồm những sản phẩm đang bật tính năng theo dõi inventory (`inventoryItem.tracked = true`), mà còn có thể bao gồm cả những sản phẩm không bật tính năng này (`inventoryItem.tracked = false`).
+Một điểm em nhận thấy trong quá trình làm bài là kết quả không chỉ bao gồm những sản phẩm đang bật tính năng theo dõi inventory (`inventoryItem.tracked = true`), mà còn có thể bao gồm cả những sản phẩm không bật tính năng này (`inventoryItem.tracked = false`).
 
 Vì vậy, em giữ nguyên điều kiện lọc theo đề bài thay vì tự thêm điều kiện loại bỏ những sản phẩm không theo dõi inventory.
 
-### 6. Xử lý loading và error state
+### 6. Hiển thị loading và error state
 
 Em cũng bổ sung một số trạng thái để giao diện không bị trống trong lúc chờ dữ liệu.
 
@@ -134,9 +134,7 @@ Cụ thể:
 
 ---
 
-## Nếu có thêm 1 giờ
-
-Nếu có thêm thời gian, em muốn cải thiện một số phần sau:
+## Những phần sẽ cải thiện nếu có thêm 1 giờ
 
 - Xem lại điều kiện lấy orders để kết quả chính xác hơn. Ví dụ, có nên loại bỏ các đơn hàng test, đơn chưa được xử lý hoặc đơn đã bị cancel khi tính doanh thu hay không.
 - Dành thêm thời gian để chỉnh sửa giao diện và sắp xếp lại một số phần code.
@@ -151,7 +149,7 @@ Trong quá trình làm bài, em có sử dụng Claude để hỗ trợ một s�
 - Giải thích và hỗ trợ sửa một số lỗi cú pháp khi viết câu query GraphQL.
 - Giúp em tìm hiểu và so sánh ý nghĩa của các field của trong Order như `netPaymentSet`, `currentTotalPriceSet`, `totalPriceSet` và `totalReceivedSet`.
 
-## Thời gian thực tế
+## Thời gian làm bài thực thế
 
 - Khoảng 90 phút: Đọc tài liệu, tìm hiểu Shopify Admin GraphQL API, test query trên Postman, code và deploy project lên Vercel.
 - Khoảng 60 phút: Viết README và quay video demo.
