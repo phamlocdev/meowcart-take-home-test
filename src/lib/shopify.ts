@@ -41,7 +41,7 @@ export async function getProductCounts() {
 
 export type Order = {
   createdAt: string;
-  currentTotalPriceSet: { shopMoney: { amount: string; currencyCode: string } };
+  netPaymentSet: { shopMoney: { amount: string; currencyCode: string } };
 };
 
 export async function getOrders30Days(): Promise<Order[]> {
@@ -58,7 +58,7 @@ export async function getOrders30Days(): Promise<Order[]> {
     } = await shopifyFetch(
       `query ($cursor: String, $q: String) {
         orders(first: 250, after: $cursor, query: $q) {
-          edges { node { createdAt currentTotalPriceSet { shopMoney { amount currencyCode } } } }
+          edges { node { createdAt netPaymentSet { shopMoney { amount currencyCode } } } }
           pageInfo { hasNextPage endCursor }
         }
       }`,

@@ -9,13 +9,12 @@ export default async function Home() {
     getLowStock(null),
   ]);
   const orderCount = orders.length;
-  // Revenue = tổng currentTotalPriceSet.shopMoney của mọi đơn trong 30 ngày.
+  // Revenue = tổng netPaymentSet.shopMoney (tiền thực thu ròng = đã nhận - đã hoàn) của mọi đơn trong 30 ngày.
   const revenue = orders.reduce(
-    (sum, o) => sum + Number(o.currentTotalPriceSet.shopMoney.amount),
+    (sum, order) => sum + Number(order.netPaymentSet.shopMoney.amount),
     0,
   );
-  const currency =
-    orders[0]?.currentTotalPriceSet.shopMoney.currencyCode ?? "USD";
+  const currency = orders[0]?.netPaymentSet.shopMoney.currencyCode ?? "USD";
   const revenueText = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
