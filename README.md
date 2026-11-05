@@ -40,25 +40,27 @@ Server Component và Route Handler đều là những thành phần chạy ở p
 
 ### 2. Sử dụng alias để lấy số lượng sản phẩm
 
-Lúc đầu, em nghĩ có thể cần gọi `productsCount` nhiều lần để lấy tổng số sản phẩm, số sản phẩm active và draft.
+Lúc đầu, em nghĩ có thể cần gọi `productsCount` field nhiều lần để lấy tổng số sản phẩm, số sản phẩm active và draft.
 
 Sau khi tìm hiểu thêm về GraphQL, em biết rằng có thể sử dụng alias để gọi nhiều lần cùng một field trong một query.
 
 => Em có thể lấy cả 3 kết quả trong cùng một request thay vì phải gửi 3 request.
 
-### 3. Sử dụng chung dữ liệu orders cho nhiều phần
+### 3. Sử dụng chung dữ liệu orders cho nhiều yêu cầu trong đề bài (1c, 1d, và simple chart)
 
-Shopify có `ordersCount` field để đếm số lượng đơn hàng, nhưng trong bài này em còn cần tính doanh thu và hiển thị biểu đồ số đơn theo ngày (yêu cầu 1d và yêu cầu 1 trong phần nice-to-have).
+Shopify có `ordersCount` field để đếm số lượng đơn hàng, nhưng trong bài test này em cần tính doanh thu (yêu cầu 1d) và hiển thị biểu đồ số đơn theo ngày (yêu cầu 1 trong phần nice-to-have).
 
-=> Em chọn cách lấy danh sách orders được tạo trong 30 ngày gần nhất và sử dụng chung dữ liệu này cho cả 3 yêu cầu trong đề bài.
+Và vì em không thể query trực tiếp field liên quan đến revenue của các Order items
+
+=> Em chọn cách lấy danh sách orders được tạo trong 30 ngày gần nhất và sử dụng chung dữ liệu này cho cả 3 yêu cầu trong đề bài. (Em sử dụng vòng lặp while + dựa vào endCursor để fetch tất cả danh sách Order items)
 
 Cụ thể:
 
 - Total orders: Đếm số lượng orders lấy được.
-- Total revenue: Cộng giá trị `netPaymentSet` của các orders.
-- Orders chart: Nhóm các orders theo ngày để hiển thị lên biểu đồ.
+- Total revenue: Cộng giá trị nested field: `amount` nằm trong `netPaymentSet.shopMoney` của các orders.
+- Orders chart: Nhóm các orders theo ngày (createdAt < now - 14 days before>) để hiển thị lên biểu đồ.
 
-### 4. Chọn netPaymentSet để tính doanh thu
+### 4. Chọn netPaymentSet field để tính doanh thu
 
 Đề bài yêu cầu tính "Total revenue from orders in the last 30 days", nhưng em chưa chắc nên sử dụng field nào để kết quả phản ánh đúng doanh thu thực tế.
 
@@ -80,7 +82,7 @@ Một vài điểm em tìm hiểu thêm trong quá trình so sánh các field:
 
 **Returns, refunds và cancel không giống nhau.**
 
-Em nhận thấy cần phân biệt rõ 3 trường hợp này vì chúng có thể ảnh hưởng khác nhau đến giá trị của một order.
+Em nhận thấy cần phân biệt rõ 3 trường hợp này vì chúng có thể ảnh hưởng khác nhau đến giá trị revenue của một order.
 
 - Return: Khách trả lại sản phẩm.
 - Refund: Shop hoàn lại tiền cho khách hàng. Việc refund không nhất thiết phải đi kèm với return, ví dụ: khách hàng đã thanh toán đơn hàng nhưng lại hủy đơn trước khi giao hàng => được refund lại tiền nhưng lại không cần return (vì đơn hàng chưa được giao)
@@ -113,17 +115,13 @@ Sau khi so sánh, em quyết định sử dụng `netPaymentSet` vì những lý
 
 ### 5. Low-stock có bao gồm sản phẩm không bật theo dõi inventory
 
-Ở phần low-stock, em sử dụng điều kiện `inventory_total:<5` để lấy các sản phẩm có tổng inventory nhỏ hơn 5, đúng với yêu cầu của đề bài.
+Ở phần low-stock, em sử dụng điều kiện `inventory_total:<5` để lấy các sản phẩm có tổng inventory < 5, đúng với yêu cầu của đề bài.
 
 Một điểm em nhận thấy trong quá trình làm bài là kết quả không chỉ bao gồm những sản phẩm đang bật tính năng theo dõi inventory (`inventoryItem.tracked = true`), mà còn có thể bao gồm cả những sản phẩm không bật tính năng này (`inventoryItem.tracked = false`).
 
 Vì vậy, em giữ nguyên điều kiện lọc theo đề bài thay vì tự thêm điều kiện loại bỏ những sản phẩm không theo dõi inventory.
 
 ### 6. Hiển thị loading và error state
-
-Em cũng bổ sung một số trạng thái để giao diện không bị trống trong lúc chờ dữ liệu.
-
-Cụ thể:
 
 - Sử dụng `src/app/loading.tsx` để hiển thị loading khi trang đang được render.
 - Sử dụng `src/app/error.tsx` để xử lý lỗi trong quá trình render trang.
@@ -136,20 +134,22 @@ Cụ thể:
 
 ## Những phần sẽ cải thiện nếu có thêm 1 giờ
 
-- Xem lại điều kiện lấy orders để kết quả chính xác hơn. Ví dụ, có nên loại bỏ các đơn hàng test, đơn chưa được xử lý hoặc đơn đã bị cancel khi tính doanh thu hay không.
+- Xem lại điều kiện khi fetch danh sách orders để kết quả chính xác hơn.
+  - Ví dụ: nên loại bỏ các đơn hàng test, đơn chưa được xử lý hoặc đơn đã bị cancel khi tính tổng revenue.
 - Dành thêm thời gian để chỉnh sửa giao diện và sắp xếp lại một số phần code.
 
 ---
 
 ## Công cụ AI đã sử dụng
 
-Trong quá trình làm bài, em có sử dụng Claude để hỗ trợ một số phần:
+Trong quá trình làm bài, em có sử dụng Claude để hỗ trợ một số phần sau:
 
 - Generate UI ban đầu cho dashboard.
 - Giải thích và hỗ trợ sửa một số lỗi cú pháp khi viết câu query GraphQL.
 - Giúp em tìm hiểu và so sánh ý nghĩa của các field của trong Order như `netPaymentSet`, `currentTotalPriceSet`, `totalPriceSet` và `totalReceivedSet`.
+- Hỗ trợ trình bày lại nội dung trong file README để mạch lạc, dễ hiểu và rõ ràng hơn.
 
 ## Thời gian làm bài thực thế
 
 - Khoảng 90 phút: Đọc tài liệu, tìm hiểu Shopify Admin GraphQL API, test query trên Postman, code và deploy project lên Vercel.
-- Khoảng 60 phút: Viết README và quay video demo.
+- Khoảng 60 phút: Viết nội dung file README.
